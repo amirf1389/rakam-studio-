@@ -1,0 +1,30 @@
+# Builds Rakam Studio for Windows on GitHub's servers — no compiler needed on your PC.
+# Push this folder to a GitHub repository, open the "Actions" tab, and download
+# "RakamStudio-Windows" from the finished run.
+
+name: Build Windows
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -A x64 -DRAKAM_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Engine self-test
+        run: '& "build/RakamEngineTest_artefacts/Release/RakamEngineTest.exe"'
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: RakamStudio-Windows
+          path: build/RakamStudio_artefacts/Release/
